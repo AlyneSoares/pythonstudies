@@ -1,81 +1,93 @@
 import pickle
 import os
-dict_cod_candidato = {}
-dict_regiao = {'N': 'norte', 'NE': 'nordeste', 'S': 'sul', 'SE': 'sudeste', 'O': 'centroeste'}
-#dict_cod_candidato = {cod_candidato:{cod_candidato, nome_candidato, cargo},}
-#dict_regioes = {cod_candidato:{regiao1, num_votos},}
-#dict_resultado = {cod_candidato:{cod_candidato, nome_candidato, cargo},{regiao1, num_votos},{regiao2, num_votos},}
+dict_cargo = {'1': 'Presidente', '2': 'Governador'}
+dict_regiao = {'Norte': 'Norte', 'Sul': 'Sul', 'Leste': 'Leste', 'Oeste': 'Oeste'}
+candidato = {}
+
+def abrir_registro():
+    registro = open('registro_elegiveis.dat','rb')
+    elegiveis = pickle.load(registro)
+    return elegiveis
+
+def gravar_registro(elegiveis):
+    registro = open('registro_elegiveis.dat','wb')
+    pickle.dump(elegiveis, registro)
+    registro.close()
+
+def iniciar_processo():
+    elegiveis = {}
+    gravar_registro(elegiveis)
+    rodar_programa()
+
+def rodar_programa():
+    continuar = 'Y'
+    while continuar != 'X':
+        legenda = inserir_cod_candidato()
+        print('Dados salvos com sucesso\n')
+        continuar = raw_input('Continue a cadastrar outro candidato ou digite X para concluir o cadastro: \n \n')
+
+def cadastrar_novo_candidato(legenda):
+    salvar_cod_candidato(legenda)
+    inserir_nome_candidato(legenda)
+    selecionar_cargo(legenda)
+    inserir_votos_por_regiao()
+    
+
+def atualizar_candidato(legenda):
+    inserir_nome_candidato(legenda)
+    selecionar_cargo(legenda)
+    inserir_votos_por_regiao()
+    
+    
+def inserir_cod_candidato(): 
+    elegiveis = abrir_registro()
+    legenda = raw_input('Informe o cÃ³digo do candidato: ')
+    if legenda in elegiveis:
+            decisao = raw_input('Atualizar candidato, aperte "Enter". Digite X para novo candidato')
+            if decisao != 'X':
+                    atualizar_candidato(legenda)
+    if legenda not in elegiveis:
+        cadastrar_novo_candidato(legenda)       
 
 
-def cargo():
-    dict_cargo = {'1': 'Presidente', '2': 'Governador'}
+def salvar_cod_candidato(legenda):
+    elegiveis = abrir_registro()
+    candidato['cod_candidato'] = legenda
+    elegiveis[legenda] = candidato
+    gravar_registro(elegiveis)
+    return legenda
+
+
+def inserir_nome_candidato(legenda):
+    elegiveis = abrir_registro()
+    elegiveis[legenda] = candidato
+    candidato['nome'] = nome = raw_input('Informe o nome do candidato: ')
+    gravar_registro(elegiveis)
+    
+
+def selecionar_cargo(legenda):
+    elegiveis = abrir_registro()
     titulo = ''
     while titulo not in dict_cargo:
         titulo = raw_input('Digite 1 para presidente e 2 para governador: ')
         if titulo not in dict_cargo:
-            print('Cargo não encontrado')
+            print('Cargo nÃ£o encontrado')
     cargo = dict_cargo.get(titulo)
-    print('Cargo: ' + cargo)
-    return cargo
-
-def registra_codigo():
-    registro = open('registro_elegiveis.dat','rb')
-    elegiveis = pickle.load(registro)
-    legenda = ''
-    if elegiveis != {}:
-        legenda = raw_input('Informe o código do candidato: ')
-        if legenda in elegiveis:
-                print('Legenda já registrada')
-                legenda = raw_input('Informe o código do candidato: ')
-        elif legenda not in elegiveis:
-            cod_candidato = elegiveis.get(legenda)
-    else:
-        legenda = raw_input('Informe o código do candidato: ')
-        cod_candidato = elegiveis.get(legenda)
-    print('Código: ' + legenda)
-    return legenda
-
-def dados_candidato():
-    registro = open('registro_elegiveis.dat','rb')
-    elegiveis = pickle.load(registro)
-    print('Insira os dados dos candidatos')
-    candidato = {}
-
-    candidato['cod_candidato'] = legenda = registra_codigo()
-    candidato['nome'] = raw_input('Informe o nome do candidato: ')
-    candidato['cargo'] = cargo()
-    candidato['regiao'] = regiao()
-    candidato['num_votos'] = int(raw_input('Quantidade de votos: '))
     elegiveis[legenda] = candidato
-    registro.close()
-    registro = open('registro_elegiveis.dat','wb')
-    pickle.dump(elegiveis, registro)
-    print(elegiveis)
+    candidato['cargo'] = cargo
+    gravar_registro(elegiveis)
+    
+
+def inserir_votos_por_regiao(legenda):
+    elegiveis = abrir_registro()
+    for key in dict_regiao:
+        dict_regiao[key] = raw_input('Votos da RegiÃ£o ' + key + ' : ')
+    dict_regiao_voto = dict_regiao
+    elegiveis[legenda] = candidato    
+    candidato['num_votos_regiao'] = dict_regiao_voto
+    gravar_registro(elegiveis)
     print('Registro total: ' + str(len(elegiveis)) + ' candidatos')
+    print(elegiveis)
 
-def regiao():    
-    sigla = ''
-    while sigla not in dict_regiao:
-        sigla = raw_input('Insira a sigla para a região: \n N = Norte; NE = Nordeste; S = Sul; SE = Sudeste; O = Centroeste: ')
-        if sigla not in dict_regiao:
-            print('Região não encontrada')
-    regiao = dict_regiao.get(sigla)
-    print('Região: ' + regiao)
-    return regiao  
-
-def inserir_dados_eleicao():
-    continuar = 'Y'
-    while continuar != 'X':
-        dados_candidato()
-        print('Dados salvos com sucesso')
-        continuar = raw_input('Continue a cadastrar outro candidato ou digite X para iniciar a contagem de votos: \n \n')
- 
-
-def iniciar_processo():
-    elegiveis = {}
-    registro = open('registro_elegiveis.dat','wb')
-    pickle.dump(elegiveis, registro)
-    registro.close()
-    inserir_dados_eleicao()
 
 iniciar_processo()
