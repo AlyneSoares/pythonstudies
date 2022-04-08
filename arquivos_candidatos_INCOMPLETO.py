@@ -30,13 +30,13 @@ def cadastrar_novo_candidato(legenda):
     salvar_cod_candidato(legenda)
     inserir_nome_candidato(legenda)
     selecionar_cargo(legenda)
-    inserir_votos_por_regiao()
+    inserir_votos_por_regiao(legenda)
     
 
 def atualizar_candidato(legenda):
     inserir_nome_candidato(legenda)
     selecionar_cargo(legenda)
-    inserir_votos_por_regiao()
+    inserir_votos_por_regiao(legenda)
     
     
 def inserir_cod_candidato(): 
@@ -81,13 +81,16 @@ def selecionar_cargo(legenda):
 def inserir_votos_por_regiao(legenda):
     elegiveis = abrir_registro()
     for key in dict_regiao:
-        dict_regiao[key] = raw_input('Votos da Região ' + key + ' : ')
+        dict_regiao[key] = int(raw_input('Votos da Região ' + key + ' : '))
     dict_regiao_voto = dict_regiao
     elegiveis[legenda] = candidato    
     candidato['num_votos_regiao'] = dict_regiao_voto
     gravar_registro(elegiveis)
     print('Registro total: ' + str(len(elegiveis)) + ' candidatos')
-    print(elegiveis)
+    for subject, score in elegiveis.items():
+               print(subject, score)
+
+    
 
 
 iniciar_processo()
